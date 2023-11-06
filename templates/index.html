@@ -1,17 +1,28 @@
 {% extends 'base.html' %} {% block content %}
-<form method="post" class="buttons">
-  <h3>Enter The Chat Room</h3>
-  <div class="enter-name">
-    <label>Name:</label>
-    <input
-      class="text-name"
-      type="text"
-      placeholder="Pick a name!"
-      name="name"
-      value="{{name}}"
-    />
-  </div>
-  <button type="submit" name="join" class="create-btn">Join Room</button>
+<div class="card" style="width: 600px;">
+  <div class="card-header msg_head">
+    <h3 style="text-align: center; color: azure;">Enter The Chat Room</h3>
+    </div>
+    <div class="card-body contacts_body">
+      <form 
+        method="post" 
+        class="buttons"
+        style="display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;">
+        <div class="input-group" style="width: 450px; justify-content: center;">
+          <input type="text" placeholder="Enter your name!" name="name" value="{{name}}" id="name" class="form-control search">
+            <div class="input-group-prepend">
+              <span class="input-group-text search_btn"></span>
+            </div>
+          </div>
+      <button type="submit" name="join" class="btn btn-outline-light" style="margin-top: 20px;">Join Room</button>
+    </form>
+    </div>
+
+</div>
+
   {% if error %}
   <ul>
     <li>{{error}}</li>

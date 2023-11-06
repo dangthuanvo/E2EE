@@ -3,7 +3,6 @@ import socket
 import threading
 import rsa
 import requests
-
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     s.settimeout(0)
@@ -31,15 +30,17 @@ def handle_message(client_socket):
         if(message_count == 4):
             try:    
                 message = client_socket.recv(1024)
-                print(f"{message} received from client")
+                # int_val = int.from_bytes(message, "big")
+                try:
+                    print(f"{message.decode()} received from client")
+                except:
+                    print(f"{message} received from client")
                 if not message:
                     break
-                # Forward the message to other clients
                 if(client_socket == client1):
                     client2.send(message)
                 else:
                     client1.send(message)
-
             except Exception as e:
                 print(f"Error: {str(e)}")
                 break
@@ -51,11 +52,11 @@ def handle_connect(client_socket):
         clientcount += 1
         client1 = client_socket
         client1_key = rsa.PublicKey.load_pkcs1(client_socket.recv(1024))
-        client1_name = client_socket.recv(1024)
+        client1_name = client_socket.recv(1024).decode()
     else:
         client2 = client_socket
         client2_key = rsa.PublicKey.load_pkcs1(client_socket.recv(1024))
-        client2_name = client_socket.recv(1024)
+        client2_name = client_socket.recv(1024).decode()
         client_message1 = threading.Thread(target=handle_message, args=(client1,)).start()
         client_message2 = threading.Thread(target=handle_message, args=(client2,)).start()
         client1.send(client2_key.save_pkcs1(format='PEM'))
