@@ -29,7 +29,9 @@ def handle_message(client_socket):
     while True:
         if(message_count == 4):
             try:    
-                message = client_socket.recv(1024)
+                receive_message = client_socket.recv(1024)
+                message = receive_message['encrypted_message']
+                sign = receive_message['encrypted_signature']
                 # int_val = int.from_bytes(message, "big")
                 try:
                     print(f"{message.decode()} received from client")

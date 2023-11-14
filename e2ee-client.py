@@ -11,11 +11,12 @@ from flask_socketio import SocketIO
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "e2ee123"
 PORT = 9999
-server_ip = "172.30.109.215"
+server_ip = "192.168.1.16"
 socketio = SocketIO(app)
 
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 public_key, private_key = rsa.newkeys(1024)
+tamper_public_key, tamper_private_key = rsa.newkeys(1024)
 print(public_key)
 print(private_key)
 public_partner = None
@@ -34,27 +35,34 @@ def receiving_messages():
             public_partner = rsa.PublicKey.load_pkcs1(client.recv(1024))
         else:
             received_data = client.recv(1024)
-            # if len(received_data) == 256:
-            #     message = rsa.decrypt(received_data, private_key).decode()
-            # else:
-            #     message = received_data.decode()
-            # messageformat = message.split(":")
-            # socketio.emit("message", {"name": messageformat[0], "message": messageformat[1]})
-
             try:
                 message = received_data.decode()
             except:
-                message = rsa.decrypt(received_data, private_key).decode()
+                messagensign = rsa.decrypt(received_data, private_key).decode()
+                messagensignformat = messagensign.split('**')
+                message = messagensignformat[0]
+                sign = messagensignformat[1]
+                try:
+                    rsa.verify(message.encode(), sign, public_partner)
+                except:
+                    socketio.emit("message", {"name": 'CẢNH BÁO', "message": 'ĐOẠN CHAT CỦA BẠN ĐANG BỊ XÂM NHẬP'})
+                    break
             messageformat = message.split(":")
             socketio.emit("message", {"name": messageformat[0], "message": messageformat[1]})
 
 
+
+
 def sending_messages(message):
     global client, public_partner, myname
+    message_to_send = f"{myname}: {message}"
+    encrypted_message = rsa.encrypt(message_to_send.encode(), public_partner)
+    sign = rsa.sign(message_to_send.encode(), private_key, 'SHA-1')
     if("mật khẩu" in message):
-        client.send(rsa.encrypt(f"{myname}: {message}".encode(), public_partner))
+        client.send({encrypted_message}**{sign})  
     else:
         client.send(f"{myname}: {message}".encode())
+
 
 @app.route("/", methods = ["POST", "GET"])
 def index():

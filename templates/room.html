@@ -77,7 +77,7 @@
       <div class="img_cont_msg">
         <img src="/static/img/3.jpg" class="rounded-circle user_img_msg">
       </div>
-      <div class="msg_container">
+      <div class="msg_container" style="color: white;">
         <span class="msg_name">${name}</span>
         ${msg}
         <span class="msg_time">${getCurrentTime()}</span>
@@ -90,7 +90,7 @@
   const createMessage2 = (msg) => {
     const content = `
     <div class="d-flex justify-content-end mb-4" style="margin-bottom: 1px;">
-      <div class="msg_container_send">
+      <div class="msg_container_send" style="color: white;" >
         <span class="msg_name_send">You</span>
         ${msg}
         <span class="msg_time_send">${getCurrentTime()}</span>
@@ -102,15 +102,31 @@
     `;
     messages.innerHTML += content;
   };
+  const createMessage3 = (msg) => {
+    const content = `
+    <div class="d-flex justify-content-end mb-4" style="margin-bottom: 1px;">
+      <span style="color: aliceblue; text-align: center; margin-left: auto;
+    margin-right: auto;"> ${msg} </span>
+    </div>
+    `;
+    messages.innerHTML += content;
+  };
 
   socketio.on("message", (data) => {
-    if (data.name === username)
+    if(data.name === 'CẢNH BÁO')
     {
-      createMessage2(data.message);
+      createMessage3(data.message);
     }
     else
     {
-      createMessage(data.name, data.message);
+      if (data.name === username)
+        {
+          createMessage2(data.message);
+        }
+        else
+        {
+          createMessage(data.name, data.message);
+        }
     }
   });
 
